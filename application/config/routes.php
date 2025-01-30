@@ -5,3 +5,8 @@ $route['default_controller'] = 'welcome';
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
 $route['about'] = 'welcome/about';
+
+
+$route['home'] = 'Pages/index';
+$route['about'] = 'Pages/about';
+$route['blog/(:num)'] = 'Pages/blog/$1';
