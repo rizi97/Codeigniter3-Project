@@ -1,9 +1,9 @@
-## Setup
-
-## Basic
-
+- Setup
 - Routes
 - Controllers
 - Views
 - Models
 - Database connection
+- Form validations
+- Sessions
+- Complete CRUD
