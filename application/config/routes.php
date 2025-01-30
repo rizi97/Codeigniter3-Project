@@ -10,3 +10,7 @@ $route['about'] = 'welcome/about';
 $route['home'] = 'Pages/index';
 $route['about'] = 'Pages/about';
 $route['blog/(:num)'] = 'Pages/blog/$1';
+
+
+$route['student'] = 'Student/studentName';
+$route['student/(:num)'] = 'Student/studentInfoByID/$1';

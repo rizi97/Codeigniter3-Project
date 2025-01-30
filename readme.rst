@@ -5,3 +5,5 @@
 - Routes
 - Controllers
 - Views
+- Models
+- Database connection
