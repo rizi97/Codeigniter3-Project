@@ -24,3 +24,4 @@ $route['employee/edit/(:num)'] = 'Frontend/Employee/edit/$1';
 $route['employee/update/(:num)'] = 'Frontend/Employee/update/$1';
 $route['employee/delete/(:num)'] = 'Frontend/Employee/delete/$1';
 $route['employee/deleteEmployee/(:num)'] = 'Frontend/Employee/deleteEmployee/$1';
+$route['employee/downloadFiles/(:num)'] = 'Backend/GenerateZip/zip_folder/$1';
