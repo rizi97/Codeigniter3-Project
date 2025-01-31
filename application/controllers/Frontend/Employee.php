@@ -7,12 +7,12 @@ class Employee extends CI_Controller {
         parent::__construct();
 
         $this->load->model('EmployeeModel', 'emp');
-
+        $this->load->model('EmployeeFilesModel', 'empFiles');
+        $this->load->library('upload');
     }
 
     public function index() {
-
-        $data = $this->emp->getData();
+        $data = $this->emp->getDataJoinWithFiles();
 
         $this->load->view('frontend/employee', ['data' => $data]);
     }
@@ -28,7 +28,7 @@ class Employee extends CI_Controller {
         $this->form_validation->set_rules('name','Name','required');
         $this->form_validation->set_rules('email','Email','required');
 
-        if( $this->form_validation->run() == FALSE ) {
+        if( $this->form_validation->run() === FALSE ) {
             $this->create();
         }
         else {
@@ -38,7 +38,41 @@ class Employee extends CI_Controller {
             ];
     
             
-            $this->emp->insertData($data);  
+            $user_id = $this->emp->insertData($data);  
+
+            if( $user_id && !empty($_FILES['file']['name']) ) {
+
+                // Create a folder based on the ID
+                $upload_path = './uploads/' . $user_id . '/';
+                if (!is_dir($upload_path)) {
+                    mkdir($upload_path, 0777, true);
+                }
+
+                // File upload configuration
+                $config['upload_path']   = $upload_path;
+                $config['allowed_types'] = 'csv|xls|xlsx';
+                $config['max_size']      = 2048; // 2MB
+                $config['file_name']     = $_FILES['file']['name'];
+
+                $this->upload->initialize($config);
+
+                if (!$this->upload->do_upload('file')) {
+                    echo $this->upload->display_errors();
+                }
+                else {
+                    // Get file data
+                    $file_data = $this->upload->data();
+        
+                    // Save file info in database
+                    $data = [
+                        'emp_id'   => $user_id,
+                        'file_name' => $file_data['file_name'],
+                    ];
+                    
+                    $this->empFiles->save_file_info($data);
+                }
+            
+            }
 
             $this->session->set_flashdata('message','Employee sucessfully added.');
 
@@ -83,14 +117,50 @@ class Employee extends CI_Controller {
 
 
     public function deleteEmployee( $id ) {
-        if( $this->emp->deleteData($id) ) {
 
-            $this->session->set_flashdata('message','Employee sucessfully deleted.');
-            
-            redirect( base_url('employee') );
+        // Fetch employee files table data against specific user
+        $emp_files_data = $this->empFiles->getDataById( $id );
+
+        if ( $emp_files_data ) {
+            $this->empFiles->deleteData( $id );     // delete employee file table entries
         }
-        else {
-            echo "Deleting issue";
+
+
+        // Delete employee table entry
+        $this->emp->deleteData($id); 
+
+        // Delete a folder based on the user_ID
+        $upload_path = './uploads/' . $id . '/';
+        if (is_dir($upload_path)) {
+            $this->delete_directory($upload_path);
         }
+
+
+        $this->session->set_flashdata('message','Employee + relevant data sucessfully deleted.');
+        
+        redirect( base_url('employee') );
+    }
+
+
+
+    private function delete_directory($dir) {
+        // Get all files and directories inside the folder
+        $files = array_diff(scandir($dir), array('.', '..'));
+
+        // Loop through files and subdirectories
+        foreach ($files as $file) {
+            $filePath = $dir . DIRECTORY_SEPARATOR . $file;
+
+            if (is_dir($filePath)) {
+                // If it's a directory, delete recursively
+                $this->delete_directory($filePath);
+            } else {
+                // If it's a file, delete it
+                unlink($filePath);
+            }
+        }
+
+        // After deleting everything inside, remove the directory itself
+        return rmdir($dir);
     }
 }

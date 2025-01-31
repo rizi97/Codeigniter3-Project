@@ -11,13 +11,25 @@ class EmployeeModel extends CI_Model {
     }
 
 
+    public function getDataJoinWithFiles() {
+        $this->db->select("{$this->tableName}.id, {$this->tableName}.name, {$this->tableName}.email, employee_files.file_name");
+        $this->db->from( $this->tableName );
+        $this->db->join("employee_files", "{$this->tableName}.id = employee_files.emp_id", "left"); 
+        $this->db->order_by("{$this->tableName}.id", 'DESC');
+
+        $query = $this->db->get();
+        return $query->result();
+    }
+
+
     public function getDataById( $id ) {
         return $this->db->get_where( $this->tableName, array('id' => $id) )->row();
     }
 
 
     public function insertData($data) {
-        return $this->db->insert( $this->tableName, $data);
+        $this->db->insert( $this->tableName, $data);
+        return $this->db->insert_id();
     }
 
 

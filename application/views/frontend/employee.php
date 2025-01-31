@@ -15,6 +15,7 @@
         <tr>
             <th>Name</th>
             <th>Email</th>
+            <th>File</th>
             <th>Actions</th>
         </tr>
 
@@ -22,6 +23,7 @@
             <tr>
                 <td><?= $employee->name ?></td>
                 <td><?= $employee->email ?></td>
+                <td><?= $employee->file_name ?></td>
                 <td>
                     <a href="<?= base_url('employee/edit/' . $employee->id ) ?>">Edit</a> | 
                     <a href="<?= base_url('employee/delete/' . $employee->id ) ?>" style="color:red">Delete</a></td>
