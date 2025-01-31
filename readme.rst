@@ -7,3 +7,6 @@
 - Form validations
 - Sessions
 - Complete CRUD
+
+- File uploading functionality 
+- Create PDF on the basis of user form

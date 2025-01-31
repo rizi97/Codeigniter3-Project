@@ -7,4 +7,4 @@
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
 </head>
-<body>
+<body style="max-width: 1000px">

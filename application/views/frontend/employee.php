@@ -16,6 +16,7 @@
             <th>Name</th>
             <th>Email</th>
             <th>File</th>
+            <th>PDF Link</th>
             <th>Actions</th>
         </tr>
 
@@ -24,6 +25,7 @@
                 <td><?= $employee->name ?></td>
                 <td><?= $employee->email ?></td>
                 <td><?= $employee->file_name ?></td>
+                <td><a href="<?= base_url("uploads/{$employee->id}/form_data_{$employee->id}.pdf") ?>" target="_blank">Link</a></td>
                 <td>
                     <a href="<?= base_url('employee/edit/' . $employee->id ) ?>">Edit</a> | 
                     <a href="<?= base_url('employee/delete/' . $employee->id ) ?>" style="color:red">Delete</a></td>

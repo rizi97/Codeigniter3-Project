@@ -9,6 +9,7 @@ class Employee extends CI_Controller {
         $this->load->model('EmployeeModel', 'emp');
         $this->load->model('EmployeeFilesModel', 'empFiles');
         $this->load->library('upload');
+        $this->load->library('fpdf/fpdf');
     }
 
     public function index() {
@@ -40,41 +41,31 @@ class Employee extends CI_Controller {
             
             $user_id = $this->emp->insertData($data);  
 
-            if( $user_id && !empty($_FILES['file']['name']) ) {
 
-                // Create a folder based on the ID
-                $upload_path = './uploads/' . $user_id . '/';
-                if (!is_dir($upload_path)) {
-                    mkdir($upload_path, 0777, true);
-                }
-
-                // File upload configuration
-                $config['upload_path']   = $upload_path;
-                $config['allowed_types'] = 'csv|xls|xlsx';
-                $config['max_size']      = 2048; // 2MB
-                $config['file_name']     = $_FILES['file']['name'];
-
-                $this->upload->initialize($config);
-
-                if (!$this->upload->do_upload('file')) {
-                    echo $this->upload->display_errors();
-                }
-                else {
-                    // Get file data
-                    $file_data = $this->upload->data();
-        
-                    // Save file info in database
-                    $data = [
-                        'emp_id'   => $user_id,
-                        'file_name' => $file_data['file_name'],
-                    ];
-                    
-                    $this->empFiles->save_file_info($data);
-                }
-            
+            // Create a folder based on the ID
+            $upload_path = './uploads/' . $user_id . '/';
+            if (!is_dir($upload_path)) {
+                mkdir($upload_path, 0777, true);
             }
 
-            $this->session->set_flashdata('message','Employee sucessfully added.');
+
+            // Create a PDF on the basis of User form input field
+            $response = $this->create_pdf($user_id, $upload_path, $data);
+
+            if( $response === FALSE ) {
+                $this->session->set_flashdata('message','Employee form data failed due to some reason.');
+
+                redirect( base_url('employee') );
+            }
+
+
+            // Upload user form file 
+            if( $user_id && !empty($_FILES['file']['name']) ) {
+                $this->upload_user_file( $user_id, $upload_path );   
+            }
+
+
+            $this->session->set_flashdata('message','Employee data added against this user: ' . $data['name']);
 
             redirect( base_url('employee') );
         }
@@ -142,6 +133,61 @@ class Employee extends CI_Controller {
     }
 
 
+
+    private function create_pdf($user_id, $upload_path, $data) {
+        $pdf_filename = 'form_data_' . $user_id . '.pdf';
+
+        // Create a new PDF instance
+        $pdf = new FPDF();
+        $pdf->AddPage();
+        $pdf->SetFont('Arial', '', 12);
+
+        // Form data (replace with actual form data)
+        $form_data = 'Name: ' . $data['name'] . "\n";
+        $form_data .= 'Email: ' . $data['email'] . "\n";
+
+        // Write form data into the PDF
+        $pdf->MultiCell(0, 10, $form_data);
+
+        // Save the PDF to the specified path
+        $pdf_path = $upload_path . '/' . $pdf_filename;
+        $pdf->Output('F', $pdf_path);  // Save to file
+
+        if (file_exists($pdf_path)) 
+            return true;
+        else 
+            return false;
+    }
+
+
+
+    private function upload_user_file($user_id, $upload_path) {
+        // File upload configuration
+        $config['upload_path']   = $upload_path;
+        $config['allowed_types'] = 'csv|xls|xlsx';
+        $config['max_size']      = 2048; // 2MB
+        $config['file_name']     = $_FILES['file']['name'];
+
+        $this->upload->initialize($config);
+
+        if (!$this->upload->do_upload('file')) {
+            echo $this->upload->display_errors();
+        }
+        else {
+            // Get file data
+            $file_data = $this->upload->data();
+
+            // Save file info in database
+            $emp_data = [
+                'emp_id'   => $user_id,
+                'file_name' => $file_data['file_name'],
+            ];
+            
+            $this->empFiles->save_file_info($emp_data);
+        }
+    }
+
+    
 
     private function delete_directory($dir) {
         // Get all files and directories inside the folder
