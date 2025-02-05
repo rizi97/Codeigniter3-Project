@@ -4,6 +4,7 @@
 - Views
 - Models
 - Database connection
+- Active format queries
 - Form validations
 - Sessions
 - Complete CRUD
