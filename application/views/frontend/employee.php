@@ -2,8 +2,10 @@
 
     <?php if( $this->session->flashdata('message') ) : ?>
         <div style="background:#c8f1c8;padding:15px;border-radius:5px">
-            <?= $this->session->flashdata('message') ?>
-            <?php $this->session->unset_userdata('message'); ?>
+            <?php 
+                echo $this->session->flashdata('message'); 
+                $this->session->unset_userdata('message');     
+            ?>
         </div>
     <?php endif; ?>
 
@@ -22,7 +24,7 @@
 
         <?php foreach($data as $employee): ?>   
             <tr>
-                <td><?= $employee->name ?></td>
+                <td><?= htmlspecialchars($employee->name, ENT_QUOTES, 'UTF-8') ?></td>
                 <td><?= $employee->email ?></td>
                 <td><a href="<?= base_url("uploads/{$employee->id}/form_data_{$employee->id}.pdf") ?>" target="_blank">Link</a></td>
                 <td><a href="<?= base_url("employee/downloadFiles/{$employee->id}") ?>">Zip</a></td>

@@ -33,14 +33,22 @@ class Employee extends CI_Controller {
             $this->create();
         }
         else {
+
             $data = [
                 'name'  => $this->input->post('name'),
                 'email' => $this->input->post('email'),
             ];
+
+
+            if( $this->emp->check_email_exists( $data['email'] ) ) {
+                $this->session->set_flashdata('message','Employee email already exists');
+
+                redirect( base_url('employee/create') );
+            }
     
             
             $user_id = $this->emp->insertData($data);  
-
+            
 
             // Create a folder based on the ID
             $upload_path = './uploads/' . $user_id . '/';
@@ -92,6 +100,14 @@ class Employee extends CI_Controller {
                 'name' => $this->input->post('name'),
                 'email'=> $this->input->post('email'),
             ];
+
+
+            if( $this->emp->check_email_exists( $data['email'] ) ) {
+                $this->session->set_flashdata('message','Employee email already exists');
+
+                redirect( base_url('employee/edit/' . $id ) );
+            }
+
 
             $this->emp->updateData( $id, $data );
 

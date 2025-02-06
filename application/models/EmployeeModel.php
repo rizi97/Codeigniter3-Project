@@ -27,6 +27,11 @@ class EmployeeModel extends CI_Model {
     }
 
 
+    public function check_email_exists( $email ) {
+        return $this->db->get_where( $this->tableName, array('email' => $email) )->row();
+    }
+
+
     public function insertData($data) {
         $this->db->insert( $this->tableName, $data);
         return $this->db->insert_id();

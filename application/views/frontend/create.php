@@ -1,6 +1,16 @@
 <?php $this->load->view('includes/header', ['title' => 'Add Employee']); ?>
 
 <main style="max-width: 800px;margin: 0 auto;">
+    
+    <?php if ($this->session->flashdata('message')): ?>
+        <div style="background:#e95757;color:#fff;padding:15px;border-radius:5px">
+            <?php 
+                echo $this->session->flashdata('message'); 
+                $this->session->unset_userdata('message');     
+            ?>
+        </div>
+    <?php endif; ?>
+
     <h1>Add Employee</h1>
 
     <a href="<?= base_url('employee') ?>" style="text-align:right;display:block;margin-bottom:20px;text-decoration:underline;color:red">Back</a>

@@ -4,11 +4,10 @@
 - Views
 - Models
 - Database connection
-- Active format queries
+- Learn active format queries
 - Form validations
 - Sessions
 - Complete CRUD
-
 - File uploading functionality 
 - Create PDF on the basis of user form
 - Download user folder files in form of ZIP

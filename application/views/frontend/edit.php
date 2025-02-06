@@ -1,5 +1,14 @@
 <?php $this->load->view('includes/header', ['title' => 'Edit Employee']); ?>
 
+<?php if ($this->session->flashdata('message')): ?>
+    <div style="background:#e95757;color:#fff;padding:15px;border-radius:5px">
+        <?php 
+            echo $this->session->flashdata('message'); 
+            $this->session->unset_userdata('message');     
+        ?>
+    </div>
+<?php endif; ?>
+
 <h1>Edit Employee</h1>
 
 <a href="<?= base_url('employee') ?>" style="text-align:right;display:block;margin-bottom:20px;text-decoration:underline;color:red">Back</a>
