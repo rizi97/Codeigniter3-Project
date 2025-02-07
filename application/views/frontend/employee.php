@@ -24,8 +24,8 @@
 
         <?php foreach($data as $employee): ?>   
             <tr>
-                <td><?= htmlspecialchars($employee->name, ENT_QUOTES, 'UTF-8') ?></td>
-                <td><?= $employee->email ?></td>
+                <td><?= esc_html($employee->name) ?></td>
+                <td><?= esc_html( $employee->email ) ?></td>
                 <td><a href="<?= base_url("uploads/{$employee->id}/form_data_{$employee->id}.pdf") ?>" target="_blank">Link</a></td>
                 <td><a href="<?= base_url("employee/downloadFiles/{$employee->id}") ?>">Zip</a></td>
                 <td>
