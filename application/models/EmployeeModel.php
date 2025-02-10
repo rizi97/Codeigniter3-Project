@@ -12,7 +12,7 @@ class EmployeeModel extends CI_Model {
 
 
     public function getDataJoinWithFiles() {
-        $this->db->select("{$this->tableName}.id, {$this->tableName}.name, {$this->tableName}.email, employee_files.file_name");
+        $this->db->select("{$this->tableName}.*, employee_files.file_name");
         $this->db->from( $this->tableName );
         $this->db->join("employee_files", "{$this->tableName}.id = employee_files.emp_id", "left"); 
         $this->db->order_by("{$this->tableName}.id", 'DESC');

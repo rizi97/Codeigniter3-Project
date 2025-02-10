@@ -15,6 +15,7 @@
 
     <table border="1">
         <tr>
+            <th>Avatar</th>
             <th>Name</th>
             <th>Email</th>
             <th>PDF Link</th>
@@ -22,8 +23,11 @@
             <th>Actions</th>
         </tr>
 
-        <?php foreach($data as $employee): ?>   
+        <?php foreach($data as $employee): ?>  
             <tr>
+                <td>
+                    <img src="<?= base_url("uploads/{$employee->id}/{$employee->avatar}") ?>">
+                </td>
                 <td><?= esc_html($employee->name) ?></td>
                 <td><?= esc_html( $employee->email ) ?></td>
                 <td><a href="<?= base_url("uploads/{$employee->id}/form_data_{$employee->id}.pdf") ?>" target="_blank">Link</a></td>

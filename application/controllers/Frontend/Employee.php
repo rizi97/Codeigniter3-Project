@@ -24,13 +24,29 @@ class Employee extends CI_Controller {
     }
 
 
+    // Custom validation function to check if file is uploaded
+    public function file_check($str) {
+        if (empty($_FILES['image']['name'])) {
+            $this->form_validation->set_message('file_check', 'The {field} field is required.');
+            return FALSE;
+        } else {
+            return TRUE;
+        }
+    }
+
+
     public function store() {
 
         $this->form_validation->set_rules('name','Name','required');
         $this->form_validation->set_rules('email','Email','required');
+        $this->form_validation->set_rules('image', 'Image', 'callback_file_check');
 
         if( $this->form_validation->run() === FALSE ) {
-            $this->create();
+            
+            // Validation failed
+            $this->session->set_flashdata('message', validation_errors());
+            
+            $this->load->view('frontend/create');
         }
         else {
 
@@ -43,9 +59,10 @@ class Employee extends CI_Controller {
             if( $this->emp->check_email_exists( $data['email'] ) ) {
                 $this->session->set_flashdata('message','Employee email already exists');
 
-                redirect( base_url('employee/create') );
+                $this->load->view('frontend/create');
+                return;
             }
-    
+
             
             $user_id = $this->emp->insertData($data);  
             
@@ -55,6 +72,25 @@ class Employee extends CI_Controller {
             if (!is_dir($upload_path)) {
                 mkdir($upload_path, 0777, true);
             }
+
+
+
+            // Upload Avatar Image
+            if ( !empty($_FILES['image']['name']) ) {
+                
+                $avatar = $this->upload_user_file($user_id, $upload_path, 'image');
+
+                if (!$avatar) {
+                    $this->session->set_flashdata('message', 'Image upload failed: ' . $this->upload->display_errors());
+                    redirect(base_url('employee/create'));
+                }
+
+                // Store the avatar filename in the database
+                $data['avatar'] = $avatar;
+                $this->emp->updateData($user_id, $data);
+            }
+
+
 
 
             // Create a PDF on the basis of User form input field
@@ -69,7 +105,7 @@ class Employee extends CI_Controller {
 
             // Upload user form file 
             if( $user_id && !empty($_FILES['file']['name']) ) {
-                $this->upload_user_file( $user_id, $upload_path );   
+                $this->upload_user_file( $user_id, $upload_path, 'file' );   
             }
 
 
@@ -170,48 +206,69 @@ class Employee extends CI_Controller {
         $pdf->AddPage();
         $pdf->SetFont('Arial', '', 12);
 
-        // Form data (replace with actual form data)
-        $form_data = 'Name: ' . $data['name'] . "\n";
-        $form_data .= 'Email: ' . $data['email'] . "\n";
+        // Form data
+        $pdf->Cell(40, 10, 'Name: ' . $data['name']);
+        $pdf->Ln();
+        $pdf->Cell(40, 10, 'Email: ' . $data['email']);
+        $pdf->Ln();
 
-        // Write form data into the PDF
-        $pdf->MultiCell(0, 10, $form_data);
+        // Check if avatar exists
+        $avatar_path = $upload_path . $data['avatar'];
+
+        if (!empty($data['avatar']) && file_exists($avatar_path)) {
+            // Add image to PDF
+            $pdf->Image($avatar_path, 10, 50); 
+            $pdf->Ln(60); // Adjust line height after image
+        } else {
+            $pdf->Cell(40, 10, 'No Avatar Uploaded');
+            $pdf->Ln();
+        }
 
         // Save the PDF to the specified path
         $pdf_path = $upload_path . '/' . $pdf_filename;
-        $pdf->Output('F', $pdf_path);  // Save to file
+        $pdf->Output('F', $pdf_path); // Save to file
 
-        if (file_exists($pdf_path)) 
+        if (file_exists($pdf_path)) {
             return true;
-        else 
+        } else {
             return false;
+        }
+
     }
 
 
 
-    private function upload_user_file($user_id, $upload_path) {
+
+    private function upload_user_file($user_id, $upload_path, $type) {
         // File upload configuration
         $config['upload_path']   = $upload_path;
-        $config['allowed_types'] = 'csv|xls|xlsx';
+        $config['allowed_types'] = ($type == 'image') ? 'jpg|jpeg|png' : 'csv|xls|xlsx';
         $config['max_size']      = 2048; // 2MB
-        $config['file_name']     = $_FILES['file']['name'];
-
+        $config['file_name']     = ($type == 'image') ? 'avatar_' . $user_id : $_FILES['file']['name'];
+    
         $this->upload->initialize($config);
-
-        if (!$this->upload->do_upload('file')) {
+    
+        // Determine correct field name for file input
+        $field_name = ($type == 'image') ? 'image' : 'file';
+    
+        if (!$this->upload->do_upload($field_name)) {
             echo $this->upload->display_errors();
-        }
-        else {
-            // Get file data
-            $file_data = $this->upload->data();
-
-            // Save file info in database
-            $emp_data = [
-                'emp_id'   => $user_id,
-                'file_name' => $file_data['file_name'],
-            ];
-            
-            $this->empFiles->save_file_info($emp_data);
+            return false;
+        } else {
+            // Get uploaded file data
+            $upload_data = $this->upload->data();
+    
+            if ($type == 'image') {
+                return $upload_data['file_name']; // Return uploaded image name
+            } else {
+                // Save file info in database
+                $emp_data = [
+                    'emp_id'    => $user_id,
+                    'file_name' => $upload_data['file_name'], // Corrected variable
+                ];
+    
+                $this->empFiles->save_file_info($emp_data);
+            }
         }
     }
 
@@ -237,4 +294,5 @@ class Employee extends CI_Controller {
         // After deleting everything inside, remove the directory itself
         return rmdir($dir);
     }
+    
 }
