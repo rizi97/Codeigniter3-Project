@@ -25,6 +25,9 @@
     <input type="email" name="email" value="<?php echo set_value('email'); ?>">
     <?php echo form_error('email'); ?>
 
+    <label for="image">Upload Avatar</label>
+    <input type="file" name="image" accept="image/*">
+
     <label for="file">Upload File</label>
     <input type="file" name="file" accept=".xlsx, .xls, .csv">
 

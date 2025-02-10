@@ -101,8 +101,20 @@ class Employee extends CI_Controller {
                 'email'=> $this->input->post('email'),
             ];
 
+            // Current database data
+            $current_data = $this->emp->getDataById( $id );
+            $current_name = $current_data->name;
+            $current_email = $current_data->email;
 
-            if( $this->emp->check_email_exists( $data['email'] ) ) {
+
+            if( $data['name'] === $current_name && $data['email'] === $current_email ) {
+                $this->session->set_flashdata('message','Data, is same. Nothing to change');
+
+                redirect( base_url('employee/edit/' . $id ) );
+            }
+
+
+            if( $data['email'] != $current_email && $this->emp->check_email_exists( $data['email'] ) ) {
                 $this->session->set_flashdata('message','Employee email already exists');
 
                 redirect( base_url('employee/edit/' . $id ) );
