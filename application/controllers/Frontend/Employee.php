@@ -10,6 +10,7 @@ class Employee extends CI_Controller {
         $this->load->model('EmployeeFilesModel', 'empFiles');
         $this->load->library('upload');
         $this->load->library('fpdf/fpdf');
+        $this->load->library('image_lib');
     }
 
     public function index() {
@@ -87,6 +88,8 @@ class Employee extends CI_Controller {
 
                 // Store the avatar filename in the database
                 $data['avatar'] = $avatar;
+
+                // Update avatar in database
                 $this->emp->updateData($user_id, $data);
             }
 
@@ -251,16 +254,50 @@ class Employee extends CI_Controller {
         // Determine correct field name for file input
         $field_name = ($type == 'image') ? 'image' : 'file';
     
-        if (!$this->upload->do_upload($field_name)) {
+        if ( ! $this->upload->do_upload($field_name) ) {
             echo $this->upload->display_errors();
             return false;
-        } else {
+        } 
+        else {
             // Get uploaded file data
             $upload_data = $this->upload->data();
     
             if ($type == 'image') {
-                return $upload_data['file_name']; // Return uploaded image name
-            } else {
+                $uploaded_image_path = $upload_data['full_path'];
+
+                // Set up image cropping configuration
+                $config_resize = [
+                    'image_library'  => 'gd2',   // Use GD2 for image manipulation
+                    'source_image'   => $uploaded_image_path, 
+                    'maintain_ratio' => TRUE,   // Keep the aspect ratio to prevent distortion
+                    'width'          => 50,    // Set the maximum width for the thumbnail
+                    'height'         => 50,    // Set the maximum height for the thumbnail
+                    'quality'        => '90%',  // High-quality compression
+                ];
+
+                // Specify the new image path where cropped image will be saved
+                $cropped_image = 'avatar_' . $user_id . '_cropped' . $upload_data['file_ext'];
+                $cropped_image_path = $upload_path . $cropped_image;
+                $config_resize['new_image'] = $cropped_image_path; // Save cropped image to the new path
+
+                // Initialize image cropping library
+                $this->image_lib->initialize($config_resize);
+
+                // Perform the resize operation
+                if (!$this->image_lib->resize()) {
+                    echo $this->image_lib->display_errors();
+                    return;
+                }
+
+                // Clean up memory for next operations
+                $this->image_lib->clear();
+
+                unlink($uploaded_image_path); // Delete the original image file
+
+                // Get the cropped image file name
+                return $cropped_image; // Return uploaded image name
+            } 
+            else {
                 // Save file info in database
                 $emp_data = [
                     'emp_id'    => $user_id,

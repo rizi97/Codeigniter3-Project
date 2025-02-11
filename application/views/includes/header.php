@@ -6,5 +6,11 @@
     <title><?= $title; ?></title>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
+
+    <style>
+        table td {
+            vertical-align: middle;
+        }
+    </style>
 </head>
 <body style="max-width: 1000px">
