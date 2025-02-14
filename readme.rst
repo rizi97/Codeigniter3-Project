@@ -12,3 +12,5 @@
 - Create PDF on the basis of user form
 - Download user folder files in form of ZIP
 - Custom Helpers
+- Image Maninpulation
+- User authentication and authorization

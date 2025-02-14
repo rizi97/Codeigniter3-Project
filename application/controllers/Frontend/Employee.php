@@ -6,6 +6,9 @@ class Employee extends CI_Controller {
     public function __construct() {
         parent::__construct();
 
+        // Using helper, check role and restirct the controller functions
+        check_role('admin');
+
         $this->load->model('EmployeeModel', 'emp');
         $this->load->model('EmployeeFilesModel', 'empFiles');
         $this->load->library('upload');

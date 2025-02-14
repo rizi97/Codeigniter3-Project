@@ -11,7 +11,10 @@
 
     <h1>Employee Data</h1>
 
-    <a href="<?= base_url('employee/create') ?>" style="text-align:right;display:block;margin-bottom:20px;text-decoration:underline">Add Employee</a>
+    <div style="display: flex; justify-content: end; gap: 20px">
+        <a href="<?= base_url('employee/create') ?>" style="text-align:right;display:block;margin-bottom:20px;text-decoration:underline">Add Employee</a>
+        <a href="<?= base_url('logout') ?>" style="text-align:right;display:block;margin-bottom:20px;text-decoration:underline">Logout</a>
+    </div>
 
     <table border="1">
         <tr>
