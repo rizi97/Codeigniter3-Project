@@ -19,7 +19,7 @@ $route['blog/(:num)'] = 'Pages/blog/$1';
 $route['student'] = 'Student/studentName';
 $route['student/(:num)'] = 'Student/studentInfoByID/$1';
 
-// -------------------------------------------------
+// -------------- Frontend --------------
 
 $route['employee'] = 'Frontend/Employee/index';
 $route['employee/create'] = 'Frontend/Employee/create';
@@ -29,3 +29,12 @@ $route['employee/update/(:num)'] = 'Frontend/Employee/update/$1';
 $route['employee/delete/(:num)'] = 'Frontend/Employee/delete/$1';
 $route['employee/deleteEmployee/(:num)'] = 'Frontend/Employee/deleteEmployee/$1';
 $route['employee/downloadFiles/(:num)'] = 'Backend/GenerateZip/zip_folder/$1';
+
+
+// -------------- API's --------------
+
+$route['api/employees']['GET'] = 'Backend/Api/employees_get';
+$route['api/employee/(:num)']['GET'] = 'Backend/Api/employee_get_id/$1';
+$route['api/employee']['POST'] = 'Backend/Api/employee_insert';
+$route['api/employee/(:num)']['PUT'] = 'Backend/Api/employee_update/$1';
+$route['api/employee/(:num)']['DELETE'] = 'Backend/Api/employee_delete/$1';

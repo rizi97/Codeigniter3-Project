@@ -54,6 +54,9 @@ $config['index_page'] = '';
 */
 $config['uri_protocol']	= 'REQUEST_URI';
 
+$config['allow_origin'] = '*';
+
+
 /*
 |--------------------------------------------------------------------------
 | URL suffix
