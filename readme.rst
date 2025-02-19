@@ -14,3 +14,4 @@
 - Custom Helpers
 - Image Maninpulation
 - User authentication and authorization
+- RESTful API
