@@ -3,11 +3,32 @@
 class EmployeeModel extends CI_Model {
 
     private $tableName = "employee";
+
+    private $cache_key = "employee_list";
+
+    public function __construct() {
+        parent::__construct();
+
+        $this->load->driver('cache', array('adapter' => 'file'));
+    }
     
 
     public function getData() {
-        $this->db->order_by('id', 'DESC');
-        return $this->db->get( $this->tableName )->result();
+
+        $cached_data = $this->cache->get( $this->cache_key );
+        
+        if ( $cached_data ) {
+            return $cached_data;
+        }
+        else {
+            $this->db->order_by('id', 'DESC');
+            $query = $this->db->get( $this->tableName );
+            $result = $query->result();
+
+            $this->cache->save( $this->cache_key, $result, 600);
+            return $result;
+        }
+
     }
 
 
@@ -34,16 +55,27 @@ class EmployeeModel extends CI_Model {
 
     public function insertData($data) {
         $this->db->insert( $this->tableName, $data);
+
+        $this->cache->delete( $this->cache_key );
+
         return $this->db->insert_id();
     }
 
 
     public function updateData($id, $data) {
-        return $this->db->update( $this->tableName, $data, array('id' => $id ) );
+        $result = $this->db->update( $this->tableName, $data, array('id' => $id ) );
+
+        $this->cache->delete( $this->cache_key );
+
+        return $result;
     }
 
 
     public function deleteData( $id ) {
-        return $this->db->delete( $this->tableName, array('id' => $id));
+        $result = $this->db->delete( $this->tableName, array('id' => $id));
+
+        $this->cache->delete( $this->cache_key );
+
+        return $result;
     }
 }

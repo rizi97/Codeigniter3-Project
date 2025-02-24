@@ -32,12 +32,24 @@ class Api extends API_Controller {
 
     public function employee_insert() {
         $input = json_decode($this->input->raw_input_stream, true);
+        
+        $user_email = trim( $input['email'] );
+
+        if( $this->empM->check_email_exists( $user_email ) ) {
+            $this->response(['error' => 'User email already exists'], 400);
+            
+            return;
+        }
+
+
         $user_id = $this->empM->insertData($input);
+
         if ($user_id) {
             $this->response(['message' => 'User created', 'id' => $user_id], 201);
         } else {
             $this->response(['error' => 'Failed to create user'], 400);
         }
+        
     }
 
 
